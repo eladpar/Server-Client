@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string.h>
 #include <arpa/inet.h>
-
+#include "server.hpp"
 #define ECHOMAX 255 
 
 using namespace std;
