@@ -32,7 +32,7 @@ server_addr.sin_family = AF_INET;
 server_addr.sin_addr.s_addr = *((long*)server->h_addr);
 server_addr.sin_port = htons(portno);
 
-if (sendto(sockfd, buffer, 256, 0, (struct sockaddr *) &server_addr, sizeof(server_addr)) != 256)
+if (sendto(sockfd, buffer, 200, 0, (struct sockaddr *) &server_addr, sizeof(server_addr)) != 256)
         error("sendto() sent a different number of bytes than expected");
 close(sockfd);
 return 0;

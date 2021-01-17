@@ -12,6 +12,14 @@
 
 using namespace std;
 
+
+struct server
+{
+	int opcode; // 2 bytes
+	string filename;
+	
+}__attribute__((packed));
+
 void error(string msg) {
     cerr << msg << endl;
     exit(0);
@@ -42,7 +50,7 @@ int main(int argc, char **argv)
     {
         error("socket() failed");
     }
-    
+    cout << "socker number is " << sock << endl;
     /* Construct local address structure */
 
     /* Zero out structure */
@@ -66,14 +74,13 @@ int main(int argc, char **argv)
         /* Set the size of the in-out parameter */
         cliAddrLen = sizeof(echoClntAddr);
         /* Block until receive message from a client */
-        if ((recvMsgSize = recvfrom(sock, echoBuffer, ECHOMAX, 0,
-                            (struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
+        if ((recvMsgSize = recvfrom(sock, echoBuffer, ECHOMAX, 0,(struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
         {
             error("recvfrom() failed");
         }
-        
+        printf("the recived msg size is %d\n", recvMsgSize);
         printf("Handling client %s\n",inet_ntoa(echoClntAddr.sin_addr));
-		printf("the message is %s", echoBuffer);
+		printf("the message is %s \n", echoBuffer);
         /* Send received datagram back to the client */
         // if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize)
        	// 	 error("sendto() sent a different number of bytes than expected");
