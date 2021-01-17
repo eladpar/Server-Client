@@ -6,22 +6,22 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-void error(char *msg) {
-    perror(msg);
-    exit(0);
-}
+#include "client.hpp"
+#include "functions.hpp"
+
+
 int main(int argc, char *argv[]) {
-    int sockfd, portno, n;
+    int sockfd, portno;
     struct sockaddr_in server_addr = {0};
     struct hostent *server;
-    char buffer[256] = "HEllo from client";
+    char buffer[256];
 if (argc < 3) {
     fprintf(stderr,"usage %s hostname port\n", argv[0]);
     exit(0);
 }
 sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 if (sockfd < 0)
-    error("ERROR opening socket");
+    perror("ERROR opening socket");
 portno = atoi(argv[2]);
 server = gethostbyname(argv[1]);
 if (server == NULL) {
@@ -32,8 +32,17 @@ server_addr.sin_family = AF_INET;
 server_addr.sin_addr.s_addr = *((long*)server->h_addr);
 server_addr.sin_port = htons(portno);
 
+// WRQ wrq;
+
+// wrq.Opcode = 21;
+// strcpy(wrq.FileName, "/home/hana.txt");
+// strcpy(wrq.TransmissionMode, "octet");
+strncpy(buffer, "21", 2);
+strncpy(buffer+3, "/home/text.ds", 14);
+strncpy(buffer+17, "octet", 5);
+
 if (sendto(sockfd, buffer, 200, 0, (struct sockaddr *) &server_addr, sizeof(server_addr)) != 256)
-        error("sendto() sent a different number of bytes than expected");
+        perror("sendto() sent a different number of bytes than expected");
 close(sockfd);
 return 0;
 }

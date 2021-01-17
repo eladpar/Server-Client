@@ -1,7 +1,6 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef CLIENT_H
+#define CLIENT_H
 #pragma once
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -15,7 +14,7 @@
 #define ECHOMAX 255 
 
 #define MAX_WRQ 512
-#define MAX_STRING 255 //TODO IS THIS REALLY THE SIZE?
+#define MAX_STRING 254
 #define MAX_DATA 512
 #define DATA_PACKET_SIZE 516
 

@@ -8,22 +8,23 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "server.hpp"
+#include "functions.hpp"
 #define ECHOMAX 255 
 
 using namespace std;
 
 
-struct server
-{
-	int opcode; // 2 bytes
-	string filename;
+// struct server
+// {
+// 	int opcode; // 2 bytes
+// 	string filename;
 	
-}__attribute__((packed));
+// }__attribute__((packed));
 
-void error(string msg) {
-    cerr << msg << endl;
-    exit(0);
-}
+// void error(string msg) {
+//     cerr << msg << endl;
+//     exit(0);
+// }
 //**************************************************************************************
 // function name: main
 // Description: main function
@@ -39,18 +40,20 @@ int main(int argc, char **argv)
     struct sockaddr_in echoServAddr; /* Local address */
     struct sockaddr_in echoClntAddr; /* Client address */
     unsigned int cliAddrLen; /* Length of incoming message */
-    char echoBuffer[ECHOMAX]; /* Buffer for echo string */
+
+    char buffer[MAX_WRQ]; /* Buffer for echo string */
+    WRQ Wrq;
+
     unsigned short echoServPort; /* Server port */
     int recvMsgSize; /* Size of received message */
-
+    
     echoServPort = atoi(argv[1]);
 
     /* Create socket for sending/receiving datagrams */
     if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
-        error("socket() failed");
+        perror("socket() failed");
     }
-    cout << "socker number is " << sock << endl;
     /* Construct local address structure */
 
     /* Zero out structure */
@@ -64,23 +67,35 @@ int main(int argc, char **argv)
     /* Bind to the local address */
     if (bind(sock, (struct sockaddr *) &echoServAddr, sizeof(echoServAddr)) < 0)
     {
-        error("bind() failed");
+        perror("bind() failed");
     }
      
-
-
-    // for (;;) 
-    // { /* Run forever */
         /* Set the size of the in-out parameter */
         cliAddrLen = sizeof(echoClntAddr);
+
+        /* Clear buffers */
+        clearBuffer(&Wrq , buffer);
         /* Block until receive message from a client */
-        if ((recvMsgSize = recvfrom(sock, echoBuffer, ECHOMAX, 0,(struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
+        if ((recvMsgSize = recvfrom(sock, buffer, MAX_WRQ, 0,(struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
         {
-            error("recvfrom() failed");
+            perror("TTFTP_ERROR:");
+            //TODO EXIT?
         }
+        cout << "buffer is " << buffer << endl;
+        cout << "buffer+2 is " << buffer+3 << endl;
+        cout << "buffer+17 is " << buffer+17 << endl;
+        build_wrq(buffer, &Wrq);
+
         printf("the recived msg size is %d\n", recvMsgSize);
-        printf("Handling client %s\n",inet_ntoa(echoClntAddr.sin_addr));
-		printf("the message is %s \n", echoBuffer);
+        //TODO CHECK THE TEST FILE FOR OPCODE AND FILE NAME
+		cout << "opcode is " << Wrq.Opcode << " filename is " << Wrq.FileName << " transmission is " << Wrq.TransmissionMode << endl;
+
+
+
+
+
+
+
         /* Send received datagram back to the client */
         // if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize)
        	// 	 error("sendto() sent a different number of bytes than expected");
@@ -88,62 +103,3 @@ int main(int argc, char **argv)
     /* NOT REACHED */
 } 
 
-// // Server side C/C++ program to demonstrate Socket programming 
-// #include <unistd.h> 
-// #include <stdio.h> 
-// #include <sys/socket.h> 
-// #include <stdlib.h> 
-// #include <netinet/in.h> 
-// #include <string.h> 
-// #define PORT 8080 
-// int main(int argc, char const *argv[]) 
-// { 
-// 	int server_fd, new_socket; 
-// 	struct sockaddr_in address; 
-// 	int opt = 1; 
-// 	int addrlen = sizeof(address); 
-// 	char buffer[1024] = {0}; 
-// 	const char *hello = "Hello from server"; 
-	
-// 	// Creating socket file descriptor 
-// 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
-// 	{ 
-// 		perror("socket failed"); 
-// 		exit(EXIT_FAILURE); 
-// 	} 
-	
-// 	// Forcefully attaching socket to the port 8080 
-// 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
-// 												&opt, sizeof(opt))) 
-// 	{ 
-// 		perror("setsockopt"); 
-// 		exit(EXIT_FAILURE); 
-// 	} 
-// 	address.sin_family = AF_INET; 
-// 	address.sin_addr.s_addr = INADDR_ANY; 
-// 	address.sin_port = htons( PORT ); 
-	
-// 	// Forcefully attaching socket to the port 8080 
-// 	if (bind(server_fd, (struct sockaddr *)&address, 
-// 								sizeof(address))<0) 
-// 	{ 
-// 		perror("bind failed"); 
-// 		exit(EXIT_FAILURE); 
-// 	} 
-// 	if (listen(server_fd, 3) < 0) 
-// 	{ 
-// 		perror("listen"); 
-// 		exit(EXIT_FAILURE); 
-// 	} 
-// 	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
-// 					(socklen_t*)&addrlen))<0) 
-// 	{ 
-// 		perror("accept"); 
-// 		exit(EXIT_FAILURE); 
-// 	} 
-// 	read( new_socket , buffer, 1024); 
-// 	printf("%s\n",buffer ); 
-// 	send(new_socket , hello , strlen(hello) , 0 ); 
-// 	printf("Hello message sent\n"); 
-// 	return 0; 
-// } 
