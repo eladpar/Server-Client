@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     int sockfd, portno;
     struct sockaddr_in server_addr = {0};
     struct hostent *server;
-    char buffer[256];
+    // char buffer[256];
 if (argc < 3) {
     fprintf(stderr,"usage %s hostname port\n", argv[0]);
     exit(0);
@@ -32,16 +32,18 @@ server_addr.sin_family = AF_INET;
 server_addr.sin_addr.s_addr = *((long*)server->h_addr);
 server_addr.sin_port = htons(portno);
 
-// WRQ wrq;
+WRQ wrq;
 
 // wrq.Opcode = 21;
-// strcpy(wrq.FileName, "/home/hana.txt");
-// strcpy(wrq.TransmissionMode, "octet");
-strncpy(buffer, "21", 2);
-strncpy(buffer+3, "/home/text.ds", 14);
-strncpy(buffer+17, "octet", 5);
+strcpy(wrq.FileName, "/home/hana.txt");
+strcpy(wrq.TransmissionMode, "octet");
+wrq.Opcode = htons((uint16_t)2);
+// cout << real << endl;
+// strncpy(buffer, "512", 2);
+// strncpy(buffer+3, "/home/text.ds", 14);
+// strncpy(buffer+17, "octet", 5);
 
-if (sendto(sockfd, buffer, 200, 0, (struct sockaddr *) &server_addr, sizeof(server_addr)) != 256)
+if (sendto(sockfd, &wrq, 200, 0, (struct sockaddr *) &server_addr, sizeof(server_addr)) != 256)
         perror("sendto() sent a different number of bytes than expected");
 close(sockfd);
 return 0;

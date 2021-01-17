@@ -69,7 +69,8 @@ int main(int argc, char **argv)
     {
         perror("bind() failed");
     }
-     
+    //  while(1)
+    //  {
         /* Set the size of the in-out parameter */
         cliAddrLen = sizeof(echoClntAddr);
 
@@ -89,8 +90,17 @@ int main(int argc, char **argv)
         printf("the recived msg size is %d\n", recvMsgSize);
         //TODO CHECK THE TEST FILE FOR OPCODE AND FILE NAME
 		cout << "opcode is " << Wrq.Opcode << " filename is " << Wrq.FileName << " transmission is " << Wrq.TransmissionMode << endl;
+        if ((Wrq.Opcode !=2) || strcmp(Wrq.TransmissionMode, "octet"))
+        {
+            cerr << "no wrq" << endl; //DEBUG
+            //continue;
+        }
+        //ACK on WRQ
+        //OPEN FILE TO WRITE
+        //RECIEVE PACKETS AND SEND ACKS AND SAVE DATA TO FILE
+        //CLOSE FILE
 
-
+    //  }
 
 
 
