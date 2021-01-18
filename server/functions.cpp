@@ -14,6 +14,16 @@ void build_wrq(char * buffer, WRQ * wrq)
 	strncpy(wrq->TransmissionMode, buffer + 2 + file_len + 1,
 		strlen(buffer + 2 + file_len + 1));    // copy transmission mode
 }
+void build_data(char * buffer, DATA * data)
+{
+    char tmp_op[2];
+    char tmp_blk[2];
+    memcpy(&tmp_op, buffer, 2);
+    memcpy(&tmp_blk, buffer+2, 2);
+    data->Opcode = ntohs(atoi(tmp_op));
+    data->BlockNumber = ntohs(atoi(tmp_blk));
+	memcpy(data->Data, buffer+4, 512);
+}
 
 void clearBuffer(char * buffer)
 {
@@ -49,7 +59,7 @@ void ack_general(int sockfd, uint16_t ack_num, struct sockaddr_in* client_addr, 
     cout << "OUT:ACK, " << ack_num << endl;
 }
 
-bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, socklen_t client_addr_len) 
+bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, socklen_t * client_addr_len) 
 {
 	/* Declerations */
     const int WAIT_FOR_PACKET_TIMEOUT = 3;
@@ -57,7 +67,13 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, sockle
     int timeoutExpiredCount = 0;
     fd_set recievedfds;
     int ret;
+    char buffer[DATA_PACKET_SIZE];
     struct timeval timeout;
+    int recvMsgSize; /* Size of received message */
+    DATA data;
+
+    FD_ZERO(&recievedfds); 
+    FD_SET(socketfd, &recievedfds);
 
     do
     {
@@ -73,12 +89,30 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, sockle
                 if (ret < 0)
                 {
                     //! FATAL ERROR
+                    return false;
                 }
                 
                 if (ret > 0)// TODO: if there was something at the socket and we are here not because of a timeout
                 {
                     // TODO: Read the DATA packet from the socket (at least we hope this is a DATA packet)
+                    if ((recvMsgSize = recvfrom(socketfd, buffer, DATA_PACKET_SIZE, 0,(struct sockaddr *) client_addr, client_addr_len)) < 0)
+                    {
+                        perror("TTFTP_ERROR:");
+                        //TODO EXIT?
+                    }
+                    build_data(buffer, &data);
+                    if(data.Opcode != 3)// TODO: CHECK BLOCK NUM
+                    {
+                        //! FATAL ERROR
+                        return false;
+                    }
+                    else // DATA sucsses
+                    {
+                        fwrite(filefd, )
+                    }
+                    
                 }
+
                 if (ret == 0) // TODO: Time out expired while waiting for data to appear at the socket
                 {
                     //TODO: Send another ACK for the last packet
