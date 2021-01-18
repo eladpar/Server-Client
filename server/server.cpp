@@ -73,7 +73,7 @@ int main(int argc, char **argv)
     //  {
         /* Set the size of the in-out parameter */
         cliAddrLen = sizeof(echoClntAddr);
-
+        socklen_t client_adrr_len = (socklen_t)cliAddrLen;
         /* Clear buffers */
         clearBuffer(&Wrq , buffer);
         /* Block until receive message from a client */
@@ -96,6 +96,7 @@ int main(int argc, char **argv)
             //continue;
         }
         //ACK on WRQ
+        acc_general(sock, 0, &echoClntAddr, client_adrr_len);
         //OPEN FILE TO WRITE
         //RECIEVE PACKETS AND SEND ACKS AND SAVE DATA TO FILE
         //CLOSE FILE

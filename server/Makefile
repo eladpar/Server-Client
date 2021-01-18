@@ -12,7 +12,7 @@ RM = rm -f
 server: $(OBJS)
 	$(CCLINK) $(CFLAGS) -o server $(OBJS)
 # Creating the object files
-server.o: server.cpp server.hpp functions.hpp
+server.o: server.cpp server.hpp functions.hpp 
 	$(CCLINK) $(CFLAGS)  -c server.cpp
 functions.o: functions.cpp server.hpp functions.hpp
 	$(CCLINK) $(CFLAGS)  -c functions.cpp
