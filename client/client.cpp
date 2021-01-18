@@ -55,6 +55,10 @@ if ((recvMsgSize = recvfrom(sockfd, buff_in, MAX_WRQ, 0,(struct sockaddr *) &ech
     //TODO EXIT?
 }
 cout << "buff is " << buff_in << endl;
+char tmp[3];
+memcpy(tmp, buff_in, 2);
+int real_opcode = ntohs(atoi(tmp));
+cout << real_opcode <<endl;
 cout << "buffer+2 is " << buff_in+3 << endl;
 
 close(sockfd);

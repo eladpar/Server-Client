@@ -13,18 +13,6 @@
 
 using namespace std;
 
-
-// struct server
-// {
-// 	int opcode; // 2 bytes
-// 	string filename;
-	
-// }__attribute__((packed));
-
-// void error(string msg) {
-//     cerr << msg << endl;
-//     exit(0);
-// }
 //**************************************************************************************
 // function name: main
 // Description: main function
@@ -35,7 +23,7 @@ int main(int argc, char **argv)
     {
         cerr << "ERROR, no port provided" << endl;
     }
-
+    FILE *fptr;
     int sock; /* Socket */
     struct sockaddr_in echoServAddr; /* Local address */
     struct sockaddr_in echoClntAddr; /* Client address */
@@ -82,9 +70,6 @@ int main(int argc, char **argv)
             perror("TTFTP_ERROR:");
             //TODO EXIT?
         }
-        cout << "buffer is " << buffer << endl;
-        cout << "buffer+2 is " << buffer+3 << endl;
-        cout << "buffer+17 is " << buffer+17 << endl;
         build_wrq(buffer, &Wrq);
 
         printf("the recived msg size is %d\n", recvMsgSize);
@@ -95,9 +80,21 @@ int main(int argc, char **argv)
             cerr << "no wrq" << endl; //DEBUG
             //continue;
         }
+        else
+        {
+            cout << "IN:WRQ, " << Wrq.FileName << " ," << Wrq.TransmissionMode <<  endl;
+        }
+        
         //ACK on WRQ
-        acc_general(sock, 0, &echoClntAddr, client_adrr_len);
+        ack_general(sock, 0, &echoClntAddr, client_adrr_len);
         //OPEN FILE TO WRITE
+        fptr = fopen(Wrq.FileName,"w");
+        if (fptr == NULL)
+        {
+            perror("TTFTP_ERROR:");
+        }
+        //if(GetData(socketfd, filefd, clietnt_addr)
+        //good
         //RECIEVE PACKETS AND SEND ACKS AND SAVE DATA TO FILE
         //CLOSE FILE
 
