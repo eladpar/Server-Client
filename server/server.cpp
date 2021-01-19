@@ -57,8 +57,8 @@ int main(int argc, char **argv)
     {
         perror("bind() failed");
     }
-    //  while(1)
-    //  {
+     while(1)
+     {
         /* Set the size of the in-out parameter */
         cliAddrLen = sizeof(echoClntAddr);
         socklen_t client_adrr_len = (socklen_t)cliAddrLen;
@@ -68,6 +68,7 @@ int main(int argc, char **argv)
         if ((recvMsgSize = recvfrom(sock, buffer, MAX_WRQ, 0,(struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
         {
             perror("TTFTP_ERROR:");
+            continue;
             //TODO EXIT?
         }
         build_wrq(buffer, &Wrq);
@@ -78,7 +79,8 @@ int main(int argc, char **argv)
         if ((Wrq.Opcode !=2) || strcmp(Wrq.TransmissionMode, "octet"))
         {
             cerr << "no wrq" << endl; //DEBUG
-            //continue;
+            continue;
+            //TODO EXIT?
         }
         else
         {
@@ -92,13 +94,23 @@ int main(int argc, char **argv)
         if (fptr == NULL)
         {
             perror("TTFTP_ERROR:");
+            continue;
+            //TODO EXIT?
         }
-        //if(GetData(socketfd, filefd, clietnt_addr)
-        //good
-        //RECIEVE PACKETS AND SEND ACKS AND SAVE DATA TO FILE
-        //CLOSE FILE
 
-    //  }
+        if (GetData(sock, fptr, &echoClntAddr, &cliAddrLen) == true)
+            cout << "RECVOK" << endl;
+        else
+            cout << "RECVFAIL" << endl;
+        
+        if (fclose(fptr) != 0)
+        {
+            perror("TTFTP_ERROR:");
+            continue;
+            //TODO EXIT?
+        }        
+
+     }
 
 
 

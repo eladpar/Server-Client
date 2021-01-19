@@ -54,12 +54,14 @@ void ack_general(int sockfd, uint16_t ack_num, struct sockaddr_in* client_addr, 
 		{ 
 			perror("TTFTP_ERROR: ");
             //!CHECK END
+            return;
 		}
     } 
     cout << "OUT:ACK, " << ack_num << endl;
 }
 
-bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, socklen_t * client_addr_len) 
+bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr,
+                             socklen_t * client_addr_len, uint16_t BlockNumber) 
 {
 	/* Declerations */
     const int WAIT_FOR_PACKET_TIMEOUT = 3;
@@ -71,6 +73,7 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, sockle
     struct timeval timeout;
     int recvMsgSize; /* Size of received message */
     DATA data;
+    int lastWriteSize = 0;
 
     FD_ZERO(&recievedfds); 
     FD_SET(socketfd, &recievedfds);
@@ -81,6 +84,8 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, sockle
         {
             do
             {
+                /* Initialize the DATA  buffer */
+                memset(&data, 0, sizeof(DATA));
                 /* Waiting for timeout */
                 timeout.tv_sec = WAIT_FOR_PACKET_TIMEOUT;
                 timeout.tv_usec = 0;
@@ -100,41 +105,56 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr, sockle
                         perror("TTFTP_ERROR:");
                         //TODO EXIT?
                     }
-                    build_data(buffer, &data);
-                    if(data.Opcode != 3)// TODO: CHECK BLOCK NUM
-                    {
-                        //! FATAL ERROR
-                        return false;
-                    }
-                    else // DATA sucsses
-                    {
-                        fwrite(filefd, )
-                    }
-                    
                 }
 
                 if (ret == 0) // TODO: Time out expired while waiting for data to appear at the socket
                 {
                     //TODO: Send another ACK for the last packet
+                    ack_general(socketfd,BlockNumber,client_addr,*client_addr_len);
                     timeoutExpiredCount++;
+                    cout << "FLOWERROR: no data has arrived until the timeout" << endl;
                 }
                 if (timeoutExpiredCount>= NUMBER_OF_FAILURES)
                 {
-                    // FATAL ERROR BAIL OUT
+                    cout << "FLOWERROR: too many timeouts!" << endl;
+                    //! FATAL ERROR BAIL OUT
+                    return false;
                 }
-                }while (...) // TODO: Continue while some socket was ready but recvfrom somehow failed to read the data
-                if (...) // TODO: We got something else but DATA
+                }while (recvMsgSize < 0); // TODO: Continue while some socket was ready but recvfrom somehow failed to read the data
+              
+                build_data(buffer, &data);
+                if (data.Opcode != 3) // TODO: We got something else but DATA
                 {
-                    // FATAL ERROR BAIL OUT
+                    cout << "FLOWERROR: this isn't the correct packet type!" << endl;
+                    //! FATAL ERROR BAIL OUT
+                    return false;
                 }
-                if (...) // TODO: The incoming block number is not what we have expected, i.e. this is a DATA pkt but the block number
+                if (data.BlockNumber != BlockNumber+1) // TODO: The incoming block number is not what we have expected, i.e. this is a DATA pkt but the block number
                 //in DATA was wrong (not last ACK’s block number + 1)
                 {
-                    // FATAL ERROR BAIL OUT
+                    cout << "FLOWERROR: this isn't the correct packet!" << endl;
+                    //! FATAL ERROR BAIL OUT
+                    return false;                
                 }
-        }while (FALSE);
+        }while (false);
         timeoutExpiredCount = 0;
-        lastWriteSize = fwrite(...); // write next bulk of data
+        BlockNumber++; 
+
+        cout << "IN:DATA, " << BlockNumber << ", " << recvMsgSize << endl;
+
+        lastWriteSize = fwrite(data.Data, recvMsgSize-4, (size_t)1, filefd); // write next bulk of data
+   
+        if (recvMsgSize-4 != 0 && lastWriteSize != 1) // the first condition -- if we sent only a header
+        {   
+            //! FATAL ERROR BAIL OUT
+            return false;
+        }
+
+        cout << "WRITING: " << lastWriteSize << endl;
+
         // TODO: send ACK packet to the client
-    }  while (...); // Have blocks left to be read from client (not end of transmission)
+        ack_general(socketfd,BlockNumber,client_addr,*client_addr_len);
+
+    }  while (recvMsgSize == DATA_PACKET_SIZE); // Have blocks left to be read from client (not end of transmission)
+    return true;
 }
