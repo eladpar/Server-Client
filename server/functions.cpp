@@ -4,10 +4,11 @@ using namespace std;
 
 void build_wrq(char * buffer, WRQ * wrq)
 {
-    char tmp[3];
-    memcpy(&tmp, buffer, 2);
+    // char tmp[3];
+    memcpy(&wrq->Opcode, buffer, 2);
+    // tmp[3] = '\0';
     int file_len = strlen(buffer+2);
-    wrq->Opcode = ntohs(atoi(tmp));
+    wrq->Opcode = ntohs(wrq->Opcode);
     strncpy(wrq->FileName, buffer + 2, file_len);
 	if (strrchr(wrq->FileName,'/')) // go to lsat occurunce and extract file name from full path
 		strcpy(wrq->FileName, strrchr(wrq->FileName, '/') + 1);
@@ -16,12 +17,10 @@ void build_wrq(char * buffer, WRQ * wrq)
 }
 void build_data(char * buffer, DATA * data)
 {
-    char tmp_op[2];
-    char tmp_blk[2];
-    memcpy(&tmp_op, buffer, 2);
-    memcpy(&tmp_blk, buffer+2, 2);
-    data->Opcode = ntohs(atoi(tmp_op));
-    data->BlockNumber = ntohs(atoi(tmp_blk));
+    memcpy(&data->Opcode, buffer, 2);
+    memcpy(&data->BlockNumber, buffer+2, 2);
+    data->Opcode = ntohs(data->Opcode);
+    data->BlockNumber = ntohs(data->BlockNumber);
 	memcpy(data->Data, buffer+4, 512);
 }
 
