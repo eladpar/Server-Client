@@ -6,16 +6,16 @@ CC = g++
 # CFLAGS = -g -Wall
 CFLAGS =-std=c++11 -Wall -Werror -pedantic-errors -DNDEBUG -g
 CCLINK = $(CC)
-OBJS = server.o functions.o
+OBJS = ttftps.o functions.o
 RM = rm -f
 # Creating the  executable
-server: $(OBJS)
-	$(CCLINK) $(CFLAGS) -o server $(OBJS)
+ttftps: $(OBJS)
+	$(CCLINK) $(CFLAGS) -o ttftps $(OBJS)
 # Creating the object files
-server.o: server.cpp server.hpp functions.hpp 
-	$(CCLINK) $(CFLAGS)  -c server.cpp
-functions.o: functions.cpp server.hpp functions.hpp
+ttftps.o: ttftps.cpp ttftps.hpp functions.hpp 
+	$(CCLINK) $(CFLAGS)  -c ttftps.cpp
+functions.o: functions.cpp ttftps.hpp functions.hpp
 	$(CCLINK) $(CFLAGS)  -c functions.cpp
 # Cleaning old files before new make
 clean:
-	$(RM) server *.o *~ "#"* core.*
+	$(RM) ttftps *.o *~ "#"* core.*

@@ -3,19 +3,8 @@
 #pragma once
 #include <stdio.h>
 #include <string.h>
-#include "server.hpp"
+#include "ttftps.hpp"
 #include <sys/time.h>
-	
-// class functions  
-// {
-// 	private:
-
-// 	public:
-
-// 		functions();
-// 		~functions();
-
-// };
 
 void build_wrq(char * buffer, WRQ * wrq); // designed to parse the wrq from the buffer we gon deliverd to
 void build_data(char * buffer, DATA * data);
