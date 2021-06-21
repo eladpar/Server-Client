@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string.h>
 #include <arpa/inet.h>
-#include "server.hpp"
+#include "ttftps.hpp"
 #include "functions.hpp"
 #define ECHOMAX 255 
 
@@ -22,6 +22,7 @@ int main(int argc, char **argv)
     if (argc < 2)
     {
         cerr << "ERROR, no port provided" << endl;
+        exit(1);
     }
     FILE *fptr;
     int sock; /* Socket */
@@ -73,9 +74,6 @@ int main(int argc, char **argv)
         }
         build_wrq(buffer, &Wrq);
 
-        printf("the recived msg size is %d\n", recvMsgSize);
-        //TODO CHECK THE TEST FILE FOR OPCODE AND FILE NAME
-		cout << "opcode is " << Wrq.Opcode << " filename is " << Wrq.FileName << " transmission is " << Wrq.TransmissionMode << endl;
         if ((Wrq.Opcode !=2) || strcmp(Wrq.TransmissionMode, "octet"))
         {
             cerr << "no wrq" << endl; //DEBUG
@@ -112,14 +110,6 @@ int main(int argc, char **argv)
 
      }
 
-
-
-
-
-        /* Send received datagram back to the client */
-        // if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize)
-       	// 	 error("sendto() sent a different number of bytes than expected");
-    // }
     /* NOT REACHED */
 } 
 

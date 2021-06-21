@@ -4,9 +4,7 @@ using namespace std;
 
 void build_wrq(char * buffer, WRQ * wrq)
 {
-    // char tmp[3];
     memcpy(&wrq->Opcode, buffer, 2);
-    // tmp[3] = '\0';
     int file_len = strlen(buffer+2);
     wrq->Opcode = ntohs(wrq->Opcode);
     strncpy(wrq->FileName, buffer + 2, file_len);
@@ -96,19 +94,18 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr,
                     return false;
                 }
                 
-                if (ret > 0)// TODO: if there was something at the socket and we are here not because of a timeout
+                if (ret > 0)// if there was something at the socket and we are here not because of a timeout
                 {
-                    // TODO: Read the DATA packet from the socket (at least we hope this is a DATA packet)
+                    // Read the DATA packet from the socket (at least we hope this is a DATA packet)
                     if ((recvMsgSize = recvfrom(socketfd, buffer, DATA_PACKET_SIZE, 0,(struct sockaddr *) client_addr, client_addr_len)) < 0)
                     {
                         perror("TTFTP_ERROR:");
-                        //TODO EXIT?
                     }
                 }
 
-                if (ret == 0) // TODO: Time out expired while waiting for data to appear at the socket
+                if (ret == 0) //Time out expired while waiting for data to appear at the socket
                 {
-                    //TODO: Send another ACK for the last packet
+                    //Send another ACK for the last packet
                     ack_general(socketfd,BlockNumber,client_addr,*client_addr_len);
                     timeoutExpiredCount++;
                     cout << "FLOWERROR: no data has arrived until the timeout" << endl;
@@ -119,16 +116,16 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr,
                     //! FATAL ERROR BAIL OUT
                     return false;
                 }
-                }while (recvMsgSize < 0); // TODO: Continue while some socket was ready but recvfrom somehow failed to read the data
+                }while (recvMsgSize < 0); //Continue while some socket was ready but recvfrom somehow failed to read the data
               
                 build_data(buffer, &data);
-                if (data.Opcode != 3) // TODO: We got something else but DATA
+                if (data.Opcode != 3) //We got something else but DATA
                 {
                     cout << "FLOWERROR: this isn't the correct packet type!" << endl;
                     //! FATAL ERROR BAIL OUT
                     return false;
                 }
-                if (data.BlockNumber != BlockNumber+1) // TODO: The incoming block number is not what we have expected, i.e. this is a DATA pkt but the block number
+                if (data.BlockNumber != BlockNumber+1) //The incoming block number is not what we have expected, i.e. this is a DATA pkt but the block number
                 //in DATA was wrong (not last ACK’s block number + 1)
                 {
                     cout << "FLOWERROR: this isn't the correct packet!" << endl;
@@ -142,7 +139,6 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr,
         cout << "IN:DATA, " << BlockNumber << ", " << recvMsgSize << endl;
 
         lastWriteSize = fwrite(data.Data, recvMsgSize-4, (size_t)1, filefd); // write next bulk of data
-   
         if (recvMsgSize-4 != 0 && lastWriteSize != 1) // the first condition -- if we sent only a header
         {   
             //! FATAL ERROR BAIL OUT
@@ -151,7 +147,7 @@ bool GetData(int socketfd, FILE* filefd, struct sockaddr_in* client_addr,
 
         cout << "WRITING: " << lastWriteSize << endl;
 
-        // TODO: send ACK packet to the client
+        //send ACK packet to the client
         ack_general(socketfd,BlockNumber,client_addr,*client_addr_len);
 
     }  while (recvMsgSize == DATA_PACKET_SIZE); // Have blocks left to be read from client (not end of transmission)

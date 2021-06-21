@@ -1,5 +1,5 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef TTFTPS_H
+#define TTFTPS_H
 #pragma once
 
 #include <stdio.h>
